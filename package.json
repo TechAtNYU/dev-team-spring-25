@@ -18,6 +18,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
     "next": "15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -44,9 +46,6 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.7"
-  },
-  "imports": {
-    "#*": "./app/*"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
