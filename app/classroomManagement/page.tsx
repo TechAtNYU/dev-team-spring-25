@@ -195,7 +195,7 @@ export default function ClassroomManagement() {
       const metadata = e.target.value ? JSON.parse(e.target.value) : {};
       setFormData({ ...formData, metadata });
     } catch {
-      // If JSON parsing fails, don't update the state
+      
     }
   };
 
