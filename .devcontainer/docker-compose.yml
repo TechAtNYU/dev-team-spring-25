@@ -8,6 +8,8 @@ services:
     volumes:
       - ..:/app
     command: sleep infinity
+    ports:
+      - 8080:8080
     environment:
       PORT: 8080
       DATABASE_URI: postgresql+psycopg://postgres:pgs3cr3t@postgres:5432/postgres
