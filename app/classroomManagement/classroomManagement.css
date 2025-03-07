@@ -1,0 +1,21 @@
+.hstack {
+  display: flex;
+  gap: 16px;
+}
+
+.vstack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+button {
+  padding: 10px 20px; /* Add padding inside the button */
+  background-color: #4caf50; /* Green background color */
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Round corners */
+  font-size: 16px; /* Set font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}

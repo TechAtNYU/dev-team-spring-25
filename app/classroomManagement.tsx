@@ -1,7 +1,9 @@
-import Image from "next/image";
-
 export default function classroomManagementPage() {
   return (
-    <h1>Hey</h1>
+    <div>
+      <h1>Hey</h1>
+      <button>Add Classroom</button>
+      <button>Delete Classroom</button>
+    </div>
   );
 }
