@@ -30,7 +30,8 @@ RUN su node -c "npm install -g pnpm"
 # RUN python -m pip install --upgrade pip wheel pipenv poetry && \
 #     poetry config virtualenvs.create false
 
-
+COPY .devcontainer/install-scripts.sh /tmp/
+RUN cd /tmp && bash ./install-scripts.sh
 
 ENV PORT=8080
 EXPOSE $PORT
