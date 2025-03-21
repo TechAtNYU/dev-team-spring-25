@@ -1,11 +1,22 @@
 "use server";
 
+import { getCurrentUserId } from "@/app/chat/[classroomId]/actions";
 import { createClient } from "@/utils/supabase/server";
 
 const RAGFLOW_API_KEY: string = process.env.RAGFLOW_API_KEY || "";
 const RAGFLOW_SERVER_URL: string = process.env.RAGFLOW_API_URL || "";
 
 export async function uploadFile(classroomId: string, formData: FormData) {
+  // Check if the user is the admin for this classroom
+  const isAdmin = await isUserAdminForClassroom(Number(classroomId));
+  if (!isAdmin) {
+    return {
+      success: false,
+      message: "User is not authorized to upload material",
+      files: [],
+    };
+  }
+
   const datasetId = await getDatasetByClassroomId(Number(classroomId));
   if (!datasetId) {
     console.log("Error finding datasetId for ", classroomId);
@@ -151,6 +162,24 @@ export async function deleteDocument(datasetId: string, fileId: string) {
   console.log("Delete Document Response:", result);
 
   return result;
+}
+
+export async function isUserAdminForClassroom(classroomId: number) {
+  const supabase = createClient();
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await (await supabase)
+    .from("Classroom")
+    .select("admin_user_id")
+    .eq("id", classroomId)
+    .single();
+
+  if (error || !data) {
+    console.error("Error fetching classroom admin:", error);
+    return false;
+  }
+  console.log(data.admin_user_id === userId);
+  return data.admin_user_id === userId;
 }
 
 // ====================================================
