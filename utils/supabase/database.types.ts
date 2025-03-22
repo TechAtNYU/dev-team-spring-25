@@ -92,6 +92,7 @@ export type Database = {
       Classroom: {
         Row: {
           admin_user_id: string | null;
+          archived: boolean | null;
           chat_assistant_id: string | null;
           created_at: string;
           id: number;
@@ -101,6 +102,7 @@ export type Database = {
         };
         Insert: {
           admin_user_id?: string | null;
+          archived?: boolean | null;
           chat_assistant_id?: string | null;
           created_at?: string;
           id?: number;
@@ -110,6 +112,7 @@ export type Database = {
         };
         Update: {
           admin_user_id?: string | null;
+          archived?: boolean | null;
           chat_assistant_id?: string | null;
           created_at?: string;
           id?: number;
