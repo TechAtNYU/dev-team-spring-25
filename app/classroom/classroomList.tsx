@@ -14,6 +14,14 @@ import InviteMember from "./inviteMember";
 import Link from "next/link";
 import NewClassroomButton from "./newClassroomButton";
 import MemberList from "./memberList";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  // CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function ClassroomList({
   userId,
@@ -125,84 +133,161 @@ export default function ClassroomList({
     classroomList: ClassroomWithMembers[],
     isAdmin: boolean
   ) {
-    return classroomList.map((classroom) => {
-      return (
-        <div key={classroom.id}>
-          {!classroom.archived && (
-            <>
-              <h1 className="text-xl">{classroom.name}</h1>
-              <h2>Classroom ID: {classroom.id}</h2>
-              <p>
-                Ragflow Dataset ID: {classroom.ragflow_dataset_id || "null"}
-              </p>
-              <p>Join Code: {classroom.join_code || "N/A"}</p>
+    return (
+      <div className="flex flex-wrap justify-start gap-4">
+        {classroomList.map((classroom) => {
+          return (
+            <div key={classroom.id}>
+              {!classroom.archived && (
+                <Card className="w-[450px]">
+                  <CardHeader>
+                    <CardTitle>{classroom.name}</CardTitle>
+                    <CardDescription>
+                      Join Code: {classroom.join_code || "N/A"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {classroom.Classroom_Members &&
+                      classroom.Classroom_Members.length > 0 && (
+                        <MemberList classroom={classroom} />
+                      )}
+                    <p>Invite Member:</p>
+                    <InviteMember
+                      classroomId={classroom.id}
+                      onInviteSuccess={refreshClassrooms}
+                    />
+                    <Link href={`../chat/${classroom.id}`} passHref>
+                      <button
+                        type="button"
+                        className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                      >
+                        Chat!
+                      </button>
+                    </Link>
+                    <button
+                      type="button"
+                      className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
+                      onClick={
+                        isAdmin
+                          ? () => deleteClassroomAndFetch(classroom.id)
+                          : () => leaveClassroomAndFetch(classroom.id)
+                      }
+                    >
+                      {isAdmin ? "Delete Classroom" : "Leave Classroom"}
+                    </button>
 
-              {classroom.Classroom_Members &&
-                classroom.Classroom_Members.length > 0 && (
-                  <MemberList classroom={classroom} />
-                )}
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
+                        onClick={() => archiveClassroomAndFetch(classroom.id)}
+                      >
+                        Archive
+                      </button>
+                    )}
 
-              <InviteMember
-                classroomId={classroom.id}
-                onInviteSuccess={refreshClassrooms}
-              />
-              <Link href={`../chat/${classroom.id}`} passHref>
-                <button
-                  type="button"
-                  className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
-                >
-                  Chat!
-                </button>
-              </Link>
-              <button
-                type="button"
-                className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-                onClick={
-                  isAdmin
-                    ? () => deleteClassroomAndFetch(classroom.id)
-                    : () => leaveClassroomAndFetch(classroom.id)
-                }
-              >
-                {isAdmin ? "Delete Classroom" : "Leave Classroom"}
-              </button>
+                    {isAdmin && (
+                      <Link href={`../upload/${classroom.id}`} passHref>
+                        <button
+                          type="button"
+                          className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                        >
+                          Upload Materials
+                        </button>
+                      </Link>
+                    )}
 
-              {isAdmin && (
-                <button
-                  type="button"
-                  className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-                  onClick={() => archiveClassroomAndFetch(classroom.id)}
-                >
-                  Archive
-                </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleChangeClassroomName(classroom.id)}
+                        type="button"
+                        className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                      >
+                        Change Name
+                      </button>
+                    )}
+                  </CardContent>
+                  {/* <CardFooter>
+                <p>Card Footer</p>
+              </CardFooter> */}
+                </Card>
+                // <>
+                //   <h1 className="text-xl">{classroom.name}</h1>
+                //   <h2>Classroom ID: {classroom.id}</h2>
+                //   <p>
+                //     Ragflow Dataset ID: {classroom.ragflow_dataset_id || "null"}
+                //   </p>
+                //   <p>Join Code: {classroom.join_code || "N/A"}</p>
+
+                //   {classroom.Classroom_Members &&
+                //     classroom.Classroom_Members.length > 0 && (
+                //       <MemberList classroom={classroom} />
+                //     )}
+
+                //   <InviteMember
+                //     classroomId={classroom.id}
+                //     onInviteSuccess={refreshClassrooms}
+                //   />
+                //   <Link href={`../chat/${classroom.id}`} passHref>
+                //     <button
+                //       type="button"
+                //       className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                //     >
+                //       Chat!
+                //     </button>
+                //   </Link>
+                //   <button
+                //     type="button"
+                //     className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
+                //     onClick={
+                //       isAdmin
+                //         ? () => deleteClassroomAndFetch(classroom.id)
+                //         : () => leaveClassroomAndFetch(classroom.id)
+                //     }
+                //   >
+                //     {isAdmin ? "Delete Classroom" : "Leave Classroom"}
+                //   </button>
+
+                //   {isAdmin && (
+                //     <button
+                //       type="button"
+                //       className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
+                //       onClick={() => archiveClassroomAndFetch(classroom.id)}
+                //     >
+                //       Archive
+                //     </button>
+                //   )}
+
+                //   {isAdmin && (
+                //     <Link href={`../upload/${classroom.id}`} passHref>
+                //       <button
+                //         type="button"
+                //         className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                //       >
+                //         Upload Materials
+                //       </button>
+                //     </Link>
+                //   )}
+
+                //   {isAdmin && (
+                //     <button
+                //       onClick={() => handleChangeClassroomName(classroom.id)}
+                //       type="button"
+                //       className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                //     >
+                //       Change Name
+                //     </button>
+                //   )}
+
+                //   <hr className="my-5 h-px border-0 bg-gray-800 dark:bg-white" />
+                // </>
               )}
-
-              {isAdmin && (
-                <Link href={`../upload/${classroom.id}`} passHref>
-                  <button
-                    type="button"
-                    className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
-                  >
-                    Upload Materials
-                  </button>
-                </Link>
-              )}
-
-              {isAdmin && (
-                <button
-                  onClick={() => handleChangeClassroomName(classroom.id)}
-                  type="button"
-                  className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
-                >
-                  Change Name
-                </button>
-              )}
-
-              <hr className="my-5 h-px border-0 bg-gray-800 dark:bg-white" />
-            </>
-          )}
-        </div>
-      );
-    });
+            </div>
+          );
+        })}
+        ;
+      </div>
+    );
   }
 
   function mapToListItemArchived(
