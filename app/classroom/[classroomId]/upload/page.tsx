@@ -1,6 +1,6 @@
 import { isUserAdminForClassroom } from "./actions";
 import UploadComponent from "./uploadComponent";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@shared/utils/supabase/server";
 
 export default async function UploadPage({
   params,

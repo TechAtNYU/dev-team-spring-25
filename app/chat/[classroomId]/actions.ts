@@ -1,7 +1,7 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { createServiceClient } from "@/utils/supabase/service-server";
+import { createClient } from "@shared/utils/supabase/server";
+import { createServiceClient } from "@shared/utils/supabase/service-server";
 
 export type RagFlowMessage = {
   content: string;

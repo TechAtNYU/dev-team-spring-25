@@ -1,6 +1,6 @@
 "use server";
-import { createClient } from "@/utils/supabase/server";
-import { createServiceClient } from "@/utils/supabase/service-server";
+import { createClient } from "@shared/utils/supabase/server";
+import { createServiceClient } from "@shared/utils/supabase/service-server";
 
 // const RAGFLOW_SERVER_URL = process.env.RAGFLOW_API_URL || "";
 // const RAGFLOW_API_KEY = process.env.RAGFLOW_API_KEY;

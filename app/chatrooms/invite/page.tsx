@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@shared/utils/supabase/server";
 import InviteForm from "../components/invite-form";
 import Link from "next/link";
 

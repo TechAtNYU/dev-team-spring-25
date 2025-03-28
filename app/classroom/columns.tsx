@@ -1,6 +1,6 @@
 "use client";
 
-import { Tables } from "@/utils/supabase/database.types";
+import { Tables } from "@shared/utils/supabase/database.types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 

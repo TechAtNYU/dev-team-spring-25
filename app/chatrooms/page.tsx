@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@shared/utils/supabase/server";
 import Link from "next/link";
 import { createChatroom, deleteChatroom } from "./actions";
 

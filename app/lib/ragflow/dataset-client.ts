@@ -1,6 +1,6 @@
 "use server";
 import { isUserAdminForClassroom } from "@/app/classroom/[classroomId]/upload/actions";
-import { createServiceClient } from "@/utils/supabase/service-server";
+import { createServiceClient } from "@shared/utils/supabase/service-server";
 
 export type DatasetClassroomConfig = {
   classroomId: string;
