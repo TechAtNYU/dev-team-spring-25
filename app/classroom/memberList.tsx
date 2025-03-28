@@ -6,10 +6,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@shared/components/ui/sheet";
 import { ClassroomWithMembers } from "./actions";
 import { columns } from "./columns";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@shared/components/ui/data-table";
 
 export default function MemberList({
   classroom,

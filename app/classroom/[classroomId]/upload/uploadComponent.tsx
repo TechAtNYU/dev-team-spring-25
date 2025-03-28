@@ -9,10 +9,10 @@ import {
   retrieveDocuments,
   uploadFile,
 } from "@/app/lib/ragflow/dataset-client";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@shared/components/ui/input";
+import { toast } from "@shared/hooks/use-toast";
+import { Skeleton } from "@shared/components/ui/skeleton";
+import { ScrollArea } from "@shared/components/ui/scroll-area";
 
 type UploadedFile = {
   id: string;

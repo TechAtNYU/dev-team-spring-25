@@ -2,7 +2,11 @@
 
 import { Tables } from "@shared/utils/supabase/database.types";
 import { ColumnDef } from "@tanstack/react-table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@shared/components/ui/avatar";
 
 export const columns: ColumnDef<Tables<"Users">>[] = [
   {
