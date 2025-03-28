@@ -8,21 +8,18 @@ export default async function ClassroomPage() {
   const userId = await getCurrentUserId();
 
   const classData = await retrieveClassroomData(userId);
-  if (!classData) {
-    return (
-      <>
-        <h1>No classrooms found!</h1>
-        <NewClassroomButton />
-      </>
-    );
-  }
+
   return (
     <>
-      <ClassroomList
-        userId={userId}
-        initialAdminData={classData?.validAdminClasses}
-        initialMemberData={classData?.validNonAdminClasses}
-      />
+      <div style={{ padding: 20 }}>
+        <h1>User ID: {userId}</h1>
+        <NewClassroomButton />
+        <ClassroomList
+          userId={userId}
+          initialAdminData={classData?.validAdminClasses}
+          initialMemberData={classData?.validNonAdminClasses}
+        />
+      </div>
     </>
   );
 }

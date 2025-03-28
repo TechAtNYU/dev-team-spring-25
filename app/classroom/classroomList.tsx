@@ -12,7 +12,6 @@ import {
 import { Tables } from "@/utils/supabase/database.types";
 import InviteMember from "./inviteMember";
 import Link from "next/link";
-import NewClassroomButton from "./newClassroomButton";
 import MemberList from "./memberList";
 
 export default function ClassroomList({
@@ -276,29 +275,26 @@ export default function ClassroomList({
 
   return (
     <>
-      <div style={{ padding: 20 }}>
-        <h1>User ID: {userId}</h1>
-        <NewClassroomButton />
-        <h1 className={"mb-5 text-center text-3xl underline"}>My Classrooms</h1>
-        <h2 className={"text-center text-2xl"}>Admin Classrooms</h2>
-        {/* ADMIN CLASSES */}
-        {mapToListItem(adminClasses, true)}
-        <hr className="my-5 h-1 border-0 bg-gray-800 dark:bg-white" />
-        <h2 className={"text-center text-2xl"}>Member Classrooms</h2>
-        {/* NON-ADMIN CLASSES */}
-        {mapToListItem(memberClasses, false)}
-        <hr className="my-5 h-5 border-0 bg-gray-800 dark:bg-white" />
-        <h1 className={"mb-5 text-center text-3xl underline"}>
-          Archived Classrooms
-        </h1>
-        <h2 className={"text-center text-2xl"}>Admin Classrooms</h2>
-        {mapToListItemArchived(adminClasses, true)}
+      <h1 className={"mb-5 text-center text-3xl underline"}>My Classrooms</h1>
+      <h2 className={"text-center text-2xl"}>Admin Classrooms</h2>
+      {/* ADMIN CLASSES */}
+      {mapToListItem(adminClasses, true)}
+      <hr className="my-5 h-1 border-0 bg-gray-800 dark:bg-white" />
+      <h2 className={"text-center text-2xl"}>Member Classrooms</h2>
+      {/* NON-ADMIN CLASSES */}
+      {mapToListItem(memberClasses, false)}
+      <hr className="my-5 h-5 border-0 bg-gray-800 dark:bg-white" />
+      <h1 className={"mb-5 text-center text-3xl underline"}>
+        Archived Classrooms
+      </h1>
+      <h2 className={"text-center text-2xl"}>Admin Classrooms</h2>
+      {mapToListItemArchived(adminClasses, true)}
 
-        <hr className="my-5 h-1 border-0 bg-gray-800 dark:bg-white" />
-        <h2 className={"text-center text-2xl"}>Member Classrooms</h2>
-        {/* NON-ADMIN CLASSES */}
-        {mapToListItemArchived(memberClasses, false)}
-        {/* <Link href="newClassroom/">
+      <hr className="my-5 h-1 border-0 bg-gray-800 dark:bg-white" />
+      <h2 className={"text-center text-2xl"}>Member Classrooms</h2>
+      {/* NON-ADMIN CLASSES */}
+      {mapToListItemArchived(memberClasses, false)}
+      {/* <Link href="newClassroom/">
           <button
             type="button"
             className="dark:focus:green-red-900 mb-2 me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white"
@@ -306,12 +302,11 @@ export default function ClassroomList({
             Create a Classroom
           </button>
         </Link> */}
-        {/* <ArchivedClassroomList
+      {/* <ArchivedClassroomList
           userId={userId}
           initialAdminData={adminClasses}
           initialMemberData={memberClasses}
         /> */}
-      </div>
     </>
   );
 }
