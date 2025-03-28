@@ -1,5 +1,5 @@
-import { signInWithGoogle } from "../auth/actions";
-import GoogleSignInButton from "@shared/components/GoogleSignInButton";
+import { signInWithGoogle } from "@modules/auth/actions";
+import GoogleSignInButton from "@modules/auth/components/GoogleSignInButton";
 
 export default async function LoginPage() {
   return (
