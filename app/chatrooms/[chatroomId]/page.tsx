@@ -1,9 +1,9 @@
 import { createClient } from "@shared/utils/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import LeaveChatroomButton from "./components/leave-chatroom-button";
-import NewMessages from "./components/new-messages";
-import { sendMessageToChatroom } from "../actions";
+import LeaveChatroomButton from "../../../modules/chatrooms/components/leave-chatroom-button";
+import NewMessages from "../../../modules/chatrooms/components/new-messages";
+import { sendMessageToChatroom } from "@modules/chatrooms/actions";
 
 const ChatroomPage = async ({
   params,

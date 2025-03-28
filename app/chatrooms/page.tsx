@@ -1,6 +1,6 @@
 import { createClient } from "@shared/utils/supabase/server";
 import Link from "next/link";
-import { createChatroom, deleteChatroom } from "./actions";
+import { createChatroom, deleteChatroom } from "@modules/chatrooms/actions";
 
 const ChatroomsPage = async () => {
   const supabase = await createClient();

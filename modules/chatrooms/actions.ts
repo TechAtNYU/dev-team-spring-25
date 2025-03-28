@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import {
   getRagflowDatasetId,
   sendMessage,
-} from "../chat/[classroomId]/actions";
+} from "@/app/chat/[classroomId]/actions";
 import {
   deleteSession,
   findChatAssistant,
