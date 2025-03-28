@@ -2,7 +2,7 @@
 import { createServiceClient } from "@shared/utils/supabase/service-server";
 import { createClient } from "@shared/utils/supabase/server";
 import { Tables } from "@shared/utils/supabase/database.types";
-import { deleteDataset } from "../lib/ragflow/dataset-client";
+import { deleteDataset } from "@shared/lib/ragflow/dataset-client";
 
 export interface ClassroomWithMembers extends Tables<"Classrooms"> {
   Classroom_Members?: Array<{

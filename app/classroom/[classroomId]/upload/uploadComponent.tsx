@@ -8,7 +8,7 @@ import {
   DatasetClient,
   retrieveDocuments,
   uploadFile,
-} from "@/app/lib/ragflow/dataset-client";
+} from "@shared/lib/ragflow/dataset-client";
 import { Input } from "@shared/components/ui/input";
 import { toast } from "@shared/hooks/use-toast";
 import { Skeleton } from "@shared/components/ui/skeleton";
