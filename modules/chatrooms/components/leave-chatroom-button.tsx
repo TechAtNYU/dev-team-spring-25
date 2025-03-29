@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { leaveChatroom } from "../../actions";
+import { leaveChatroom } from "@modules/chatrooms/actions";
 
 export default function LeaveChatroomButton({
   chatroomId,

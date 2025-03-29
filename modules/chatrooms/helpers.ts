@@ -1,5 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
-import { createServiceClient } from "@/utils/supabase/service-server";
+import { createClient } from "@shared/utils/supabase/server";
+import { createServiceClient } from "@shared/utils/supabase/service-server";
 
 // TODO: these helpers should probably be combined with the actions in /chat
 

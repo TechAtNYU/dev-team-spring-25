@@ -1,5 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
-import InviteForm from "../components/invite-form";
+import { createClient } from "@shared/utils/supabase/server";
+import InviteForm from "../../../modules/chatrooms/components/invite-form";
 import Link from "next/link";
 
 export default async function InvitePage() {

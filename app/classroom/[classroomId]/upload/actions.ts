@@ -2,7 +2,7 @@
 
 import { getCurrentUserId } from "@/app/chat/[classroomId]/actions";
 // import { createDatasetClient } from "@/app/lib/ragflow/dataset-client";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@shared/utils/supabase/server";
 
 // const RAGFLOW_API_KEY: string = process.env.RAGFLOW_API_KEY || "";
 // const RAGFLOW_SERVER_URL: string = process.env.RAGFLOW_API_URL || "";

@@ -9,7 +9,7 @@ import {
   archiveClassroom,
   unarchiveClassroom,
 } from "./actions";
-import { Tables } from "@/utils/supabase/database.types";
+import { Tables } from "@shared/utils/supabase/database.types";
 import InviteMember from "./inviteMember";
 import Link from "next/link";
 import NewClassroomButton from "./newClassroomButton";

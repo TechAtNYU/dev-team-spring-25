@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { inviteUserToChatroom } from "../actions";
-import { Tables } from "@/utils/supabase/database.types";
+import { inviteUserToChatroom } from "@modules/chatrooms/actions";
+import { Tables } from "@shared/utils/supabase/database.types";
 
 export default function InviteForm({
   chatrooms,
