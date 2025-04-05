@@ -1,4 +1,4 @@
-import { logout } from "@/app/auth/actions";
+import { logout } from "@/app/login/actions";
 import Image from "next/image";
 
 export default function Home() {

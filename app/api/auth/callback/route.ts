@@ -8,10 +8,8 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/";
 
   const error = searchParams.get("error_description");
-  if (error && error === "Database error saving new user") {
-    return NextResponse.redirect(
-      `${origin}/auth/unauthorized?message=ORGANIZATION_EMAIL_REQUIRED`
-    );
+  if (error) {
+    return NextResponse.redirect(`${origin}/error/unauthorized`);
   }
 
   if (code) {

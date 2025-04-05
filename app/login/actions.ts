@@ -11,7 +11,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
       queryParams: {
         prompt: "select_account",
         ...(hostedDomain && { hd: hostedDomain }), // only add if orgName defined
