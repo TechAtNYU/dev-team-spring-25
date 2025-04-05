@@ -3,21 +3,22 @@
 import { createContext, useState } from "react";
 import { ClassroomWithMembers, UserWithClassroomsData } from "./contextFetcher";
 
-export const UserContext = createContext<
-  | {
-      userAndClassData: UserWithClassroomsData;
-      setUserAndClassData: React.Dispatch<
-        React.SetStateAction<UserWithClassroomsData>
-      >;
-      setClassroomData: (
-        stateSetFunction: React.Dispatch<
-          React.SetStateAction<UserWithClassroomsData>
-        >,
-        newClassroomData: ClassroomWithMembers[]
-      ) => void;
-    }
-  | undefined
->(undefined);
+export type UserContextType = {
+  userAndClassData: UserWithClassroomsData;
+  setUserAndClassData: React.Dispatch<
+    React.SetStateAction<UserWithClassroomsData>
+  >;
+  setClassroomData: (
+    stateSetFunction: React.Dispatch<
+      React.SetStateAction<UserWithClassroomsData>
+    >,
+    newClassroomData: ClassroomWithMembers[]
+  ) => void;
+};
+
+export const UserContext = createContext<UserContextType | undefined>(
+  undefined
+);
 
 export default function UserContextProvider({
   userAndClassDataInitial,

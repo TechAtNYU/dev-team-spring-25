@@ -1,12 +1,10 @@
 "use client";
 import { useContext } from "react";
 import {
-  changeClassroomName,
   deleteClassroom,
   leaveClassroom,
   setArchiveStatusClassroom,
 } from "./actions";
-import InviteMember from "./inviteMember";
 import Link from "next/link";
 import MemberList from "./memberList";
 import {
@@ -15,8 +13,30 @@ import {
 } from "../lib/userContext/contextFetcher";
 import { UserContext } from "../lib/userContext/userContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { optimisticUpdateAndFetchClassroomData } from "./clientUtils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import { useSearchParams } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import { Edit, LogOut, MessageSquareMore, Trash2, Users } from "lucide-react";
+import { SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export default function ClassroomList() {
+  const searchParams = useSearchParams();
+
   const userContext = useContext(UserContext);
   // If the userContext is undefined still, give loading visual
   if (!userContext) {
@@ -35,145 +55,189 @@ export default function ClassroomList() {
   const { setUserAndClassData, userAndClassData } = userContext;
   const userId = userAndClassData.userData.id;
 
-  /**
-   * Called "optimistic" because it changes the data in the UI (eg. the name or deletes
-   * the classroom) without waiting for it to see if the actual database was successful.
-   * So the flow: update the UI, call the action, refresh with the actual database data
-   * (which 99% of the time) will match what you optimistically update with anyway
-   * Check uses of this below
-   * @param classroomId classId to change
-   * @param action action callback to call, just provide an async
-   * @param newValue the value to optimistically update the classroom with
-   */
-  const optimisticUpdateAndFetch = async <K extends keyof ClassroomWithMembers>(
-    classroomId: number,
-    action: () => Promise<unknown>,
-    newValue: { [k in K]: ClassroomWithMembers[k] } | "remove"
-  ) => {
-    setUserAndClassData((prevData) => ({
-      userData: prevData.userData,
-      classroomsData: prevData.classroomsData.flatMap((classroom) => {
-        console.log(classroom.name);
-        if (classroom.id === classroomId) {
-          return newValue === "remove" ? [] : { ...classroom, ...newValue };
-        }
-        return classroom;
-      }),
-    }));
-    await action();
-    refreshClassrooms();
-  };
-
-  const handleChangeClassroomName = async (classroomId: number) => {
-    const newName = window.prompt("Enter new class name:");
-    if (newName !== null && newName !== "") {
-      optimisticUpdateAndFetch(
-        classroomId,
-        async () => changeClassroomName(classroomId, newName),
-        { name: newName }
-      );
-    }
-  };
-
+  // const handleChangeClassroomName = async (classroomId: number) => {
+  //   const newName = window.prompt("Enter new class name:");
+  //   if (newName !== null && newName !== "") {
+  //     optimisticUpdateAndFetchClassroomData(
+  //       classroomId,
+  //       async () => changeClassroomName(classroomId, newName),
+  //       { name: newName },
+  //       setUserAndClassData,
+  //       refreshClassrooms
+  //     );
+  //   }
+  // };
   const refreshClassrooms = async () => {
     const refreshedData = await getUserAndClassroomData();
     if (refreshedData) {
       setUserAndClassData(refreshedData);
     }
   };
+  
+  const joinedClassSuccess = searchParams.get("join_success");
+  if (joinedClassSuccess && !isNaN(Number(joinedClassSuccess))) {
+    const joinClassInfo = userAndClassData.classroomsData.find(
+      (x) => x.id === Number(joinedClassSuccess)
+    );
+    if (joinClassInfo) {
+      toast({
+        description: (
+          <div>
+            Successfully joined classroom
+            <span className="font-bold">{joinClassInfo.name}</span>!
+          </div>
+        ),
+        duration: 10000,
+      });
+      refreshClassrooms();
+    }
+    
+  }
+
+  const deleteClassSuccess = searchParams.get("delete_success");
+  if (deleteClassSuccess && !isNaN(Number(deleteClassSuccess))) {
+    const deleteClassInfo = userAndClassData.classroomsData.find(
+      (x) => x.id === Number(deleteClassSuccess)
+    );
+    if (deleteClassInfo) {
+      toast({
+        description: (
+          <div>
+            Successfully deleted classroom
+            <span className="font-bold">{deleteClassInfo.name}</span>!
+          </div>
+        ),
+        duration: 10000,
+      });
+      refreshClassrooms();
+    }
+  }
+
+
 
   function mapToListItem(
     classroomList: ClassroomWithMembers[],
     isAdmin: boolean
   ) {
-    return classroomList.map((classroom) => {
-      return (
-        <div key={classroom.id}>
-          {!classroom.archived && (
-            <>
-              <h1 className="text-xl">{classroom.name}</h1>
-              <h2>Classroom ID: {classroom.id}</h2>
-              <p>
-                Ragflow Dataset ID: {classroom.ragflow_dataset_id || "null"}
-              </p>
-              <p>Join Code: {classroom.join_code || "N/A"}</p>
+    return (
+      <div>
+        <div className="flex flex-wrap justify-start gap-4">
+          {classroomList.map((classroom) => {
+            return (
+              <div key={classroom.id}>
+                {!classroom.archived && (
+                  <Card className="w-[450px]" animated>
+                    <CardHeader>
+                      <CardTitle>{classroom.name}</CardTitle>
+                      <CardDescription>
+                        Join Code: {classroom.join_code || "N/A"}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <TooltipProvider>
+                        <Tooltip delayDuration={300}>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant={"ghost"}
+                              size={"iconLg"}
+                              asChild
+                              // className="me-2 rounded-lg border px-5 py-2.5 text-center text-sm font-medium hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                            >
+                              <Link href={`../chat/${classroom.id}`} passHref>
+                                <MessageSquareMore className="scale-[200%]" />{" "}
+                              </Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Chat!</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      {isAdmin && (
+                        <TooltipProvider>
+                          <Tooltip delayDuration={300}>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant={"ghost"}
+                                size={"iconLg"}
+                                asChild
+                                // className="me-2 rounded-lg border px-5 py-2.5 text-center text-sm font-medium hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                              >
+                                <Link
+                                  href={`/classroom/${classroom.id}/manage`}
+                                  passHref
+                                >
+                                  <Edit className="scale-[200%]" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Manage Classroom</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
 
-              {classroom.Classroom_Members &&
-                classroom.Classroom_Members.length > 0 && (
-                  <MemberList classroom={classroom} />
+                      {classroom.Classroom_Members &&
+                        classroom.Classroom_Members.length > 0 && (
+                          <MemberList
+                            classroom={classroom}
+                            enableDeletion={false}
+                            triggerButton={
+                              <TooltipProvider>
+                                <Tooltip delayDuration={300}>
+                                  <SheetTrigger asChild>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        type="button"
+                                        variant={"ghost"}
+                                        size={"iconLg"}
+                                        // className="me-2 rounded-lg border px-5 py-2.5 text-center text-sm font-medium hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                                      >
+                                        <Users className="scale-[200%]" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                  </SheetTrigger>
+                                  <TooltipContent>View Members</TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            }
+                          />
+                        )}
+                      {!isAdmin && (
+                        <TooltipProvider>
+                          <Tooltip delayDuration={300}>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant={"destructiveGhost"}
+                                size={"iconLg"}
+                                onClick={() =>
+                                  optimisticUpdateAndFetchClassroomData(
+                                    classroom.id,
+                                    async () =>
+                                      leaveClassroom(classroom.id, userId),
+                                    "remove",
+                                    setUserAndClassData,
+                                    refreshClassrooms
+                                  )
+                                }
+                                // className="me-2 rounded-lg border px-5 py-2.5 text-center text-sm font-medium hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                              >
+                                <LogOut className="scale-[200%]" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Leave Classroom</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </CardContent>
+                  </Card>
                 )}
-
-              <InviteMember
-                classroomId={classroom.id}
-                onInviteSuccess={refreshClassrooms}
-              />
-              <Link href={`../chat/${classroom.id}`} passHref>
-                <button
-                  type="button"
-                  className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
-                >
-                  Chat!
-                </button>
-              </Link>
-              <button
-                type="button"
-                className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-                onClick={() =>
-                  optimisticUpdateAndFetch(
-                    classroom.id,
-                    isAdmin
-                      ? async () => deleteClassroom(classroom.id)
-                      : async () => leaveClassroom(classroom.id, userId),
-                    "remove"
-                  )
-                }
-              >
-                {isAdmin ? "Delete Classroom" : "Leave Classroom"}
-              </button>
-
-              {isAdmin && (
-                <button
-                  type="button"
-                  className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-                  onClick={() =>
-                    optimisticUpdateAndFetch(
-                      classroom.id,
-                      async () => setArchiveStatusClassroom(classroom.id, true),
-                      { archived: true }
-                    )
-                  }
-                >
-                  Archive
-                </button>
-              )}
-
-              {isAdmin && (
-                <Link href={`classroom/${classroom.id}/upload`} passHref>
-                  <button
-                    type="button"
-                    className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
-                  >
-                    Upload Materials
-                  </button>
-                </Link>
-              )}
-
-              {isAdmin && (
-                <button
-                  onClick={() => handleChangeClassroomName(classroom.id)}
-                  type="button"
-                  className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
-                >
-                  Change Name
-                </button>
-              )}
-
-              <hr className="my-5 h-px border-0 bg-gray-800 dark:bg-white" />
-            </>
-          )}
+              </div>
+            );
+          })}
         </div>
-      );
-    });
+      </div>
+    );
   }
 
   function mapToListItemArchived(
@@ -185,13 +249,89 @@ export default function ClassroomList() {
         <div key={classroom.id}>
           {classroom.archived && (
             <>
-              <h1 className="text-xl">{classroom.name}</h1>
-              <h2>Classroom ID: {classroom.id}</h2>
+              <Card className="w-[450px]" animated>
+                <CardHeader>
+                  <CardTitle>{classroom.name}</CardTitle>
+                  {/* <CardDescription>
+                        Join Code: {classroom.join_code || "N/A"}
+                      </CardDescription> */}
+                </CardHeader>
+                <CardContent>
+                  {classroom.Classroom_Members &&
+                    classroom.Classroom_Members.length > 0 && (
+                      <MemberList
+                        classroom={classroom}
+                        enableDeletion={false}
+                        triggerButton={
+                          <TooltipProvider>
+                            <Tooltip delayDuration={300}>
+                              <SheetTrigger asChild>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant={"ghost"}
+                                    size={"iconLg"}
+                                    // className="me-2 rounded-lg border px-5 py-2.5 text-center text-sm font-medium hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                                  >
+                                    <Users className="scale-[200%]" />
+                                  </Button>
+                                </TooltipTrigger>
+                              </SheetTrigger>
+                              <TooltipContent>View Members</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        }
+                      />
+                    )}
+                  <Button
+                    type="button"
+                    variant={"ghost"}
+                    size={"iconLg"}
+                    onClick={() =>
+                      optimisticUpdateAndFetchClassroomData(
+                        classroom.id,
+                        isAdmin
+                          ? async () => deleteClassroom(classroom.id)
+                          : async () => leaveClassroom(classroom.id, userId),
+                        "remove",
+                        setUserAndClassData,
+                        refreshClassrooms
+                      )
+                    }
+                    // className="me-2 rounded-lg border px-5 py-2.5 text-center text-sm font-medium hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                  >
+                    <Trash2 className="scale-[200%]" />
+                    {isAdmin ? "Delete Classroom" : "Remove Classroom"}
+                  </Button>
+
+                  {isAdmin && (
+                    <Button
+                      type="button"
+                      variant={"ghost"}
+                      size={"iconLg"}
+                      // className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                      onClick={() =>
+                        optimisticUpdateAndFetchClassroomData(
+                          classroom.id,
+                          async () =>
+                            setArchiveStatusClassroom(classroom.id, false),
+                          { archived: false },
+                          setUserAndClassData,
+                          refreshClassrooms
+                        )
+                      }
+                    >
+                      Unarchive
+                    </Button>
+                  )}
+                </CardContent>{" "}
+              </Card>
+              {/* <h2>Classroom ID: {classroom.id}</h2>
               <p>
                 Ragflow Dataset ID: {classroom.ragflow_dataset_id || "null"}
-              </p>
+              </p> */}
 
-              {classroom.Classroom_Members &&
+              {/* {classroom.Classroom_Members &&
                 classroom.Classroom_Members.length > 0 && (
                   <div>
                     <h3>Members:</h3>
@@ -201,7 +341,7 @@ export default function ClassroomList() {
                       ))}
                     </ul>
                   </div>
-                )}
+                )} */}
 
               {/* <InviteMember
                classroomId={classroom.id}
@@ -215,38 +355,6 @@ export default function ClassroomList() {
                  Chat!
                </button>
              </Link> */}
-              <button
-                type="button"
-                className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-                onClick={() =>
-                  optimisticUpdateAndFetch(
-                    classroom.id,
-                    isAdmin
-                      ? async () => deleteClassroom(classroom.id)
-                      : async () => leaveClassroom(classroom.id, userId),
-                    "remove"
-                  )
-                }
-              >
-                {isAdmin ? "Delete Classroom" : "Remove Classroom"}
-              </button>
-
-              {isAdmin && (
-                <button
-                  type="button"
-                  className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
-                  onClick={() =>
-                    optimisticUpdateAndFetch(
-                      classroom.id,
-                      async () =>
-                        setArchiveStatusClassroom(classroom.id, false),
-                      { archived: false }
-                    )
-                  }
-                >
-                  Unarchive
-                </button>
-              )}
 
               <hr className="my-5 h-px border-0 bg-gray-800 dark:bg-white" />
             </>

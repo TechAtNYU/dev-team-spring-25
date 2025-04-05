@@ -62,8 +62,8 @@ export async function GET(
     return NextResponse.redirect(new URL("/classroom", request.url));
   }
   //redirect to classroom
-  
-  const success_url = new URL("/classroom", request.url)
-  success_url.searchParams.append("join_success",classroom.id.toString())
+
+  const success_url = new URL("/classroom", request.url);
+  success_url.searchParams.append("delete_success", classroom.id.toString());
   return NextResponse.redirect(success_url);
 }
