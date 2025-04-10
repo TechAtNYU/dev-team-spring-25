@@ -1,8 +1,12 @@
 import { createClient } from "@shared/utils/supabase/server";
 import Link from "next/link";
-import { createChatroom, deleteChatroom } from "./actions";
+import { createChatroom, deleteChatroom } from "@/app/chatrooms/actions";
 
-const ChatroomsPage = async () => {
+const ChatroomsPage = async ({
+  params,
+}: {
+  params: Promise<{ classroomId: string }>;
+}) => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -11,53 +15,34 @@ const ChatroomsPage = async () => {
     throw new Error("No authenticated user found");
   }
 
+  const { classroomId } = await params;
+
   const currentUser = user.id;
 
-  // get all classrooms that user joined
-  const { data: classroomMembers, error: classroomMembersError } =
-    await supabase
-      .from("Classroom_Members")
-      .select(
-        `
-      *,
-      Classrooms (
-        id,
-        name
-      )
-    `
-      )
-      .eq("user_id", currentUser);
-
-  if (classroomMembersError) {
-    console.error("Error fetching classrooms:", classroomMembersError);
-    throw new Error("Error fetching classrooms");
-  }
-
-  // take out all the classrooms
-  const classrooms = classroomMembers.map((member) => member.Classrooms) || [];
-
-  // Get all classroom member ids for the current user
-  const userClassroomMemberIds = classroomMembers.map((member) => member.id);
-
-  // Get all chatrooms that user joined
+  // Get all chatrooms that user joined for this classroom
   const { data: chatroomMembers, error: chatroomMembersError } = await supabase
     .from("Chatroom_Members")
     .select(
       `
-      *,
-      Chatrooms(
-        id,
+    *,
+    Chatrooms(
+      id,
+      name,
+      classroom_id,
+      creater_user_id,
+      Classrooms(
         name,
-        classroom_id,
-        creater_user_id,
-        Classrooms(
-          name,
-          chatroom_assistant_id
-        )
+        chatroom_assistant_id
       )
-    `
+    ),
+    Classroom_Members!inner(
+      user_id,
+      classroom_id
     )
-    .in("member_id", userClassroomMemberIds)
+  `
+    )
+    .eq("Classroom_Members.user_id", currentUser)
+    .eq("Classroom_Members.classroom_id", parseInt(classroomId, 10))
     .eq("is_active", true);
 
   if (chatroomMembersError) {
@@ -77,33 +62,23 @@ const ChatroomsPage = async () => {
             type="text"
             name="name"
             placeholder="Chatroom name"
-            className="rounded border border-gray-300 px-3 py-2 text-black focus:border-blue-500 focus:outline-none"
+            className="rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             required
           />
-          <select
+          <input
+            type="text"
             name="classroom_id"
-            className="rounded border border-gray-300 px-3 py-2 text-black focus:border-blue-500 focus:outline-none"
+            defaultValue={classroomId}
+            readOnly
+            hidden
             required
-          >
-            <option value="">Select a classroom</option>
-            {classrooms.map((classroom) => (
-              <option key={classroom.id} value={classroom.id}>
-                {classroom.name}
-              </option>
-            ))}
-          </select>
+          />
           <button
             type="submit"
             className="rounded bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
           >
             Create Chatroom
           </button>
-          <Link
-            href="/chatrooms/invite"
-            className="rounded bg-indigo-600 px-4 py-2 text-white transition-colors hover:bg-indigo-700"
-          >
-            Invite Users
-          </Link>
         </form>
       </div>
 
@@ -112,7 +87,6 @@ const ChatroomsPage = async () => {
           chatrooms.map((chatroom) => (
             <div key={chatroom.id} className="rounded-lg border p-4 shadow-sm">
               <h2 className="mb-2 text-xl font-semibold">{chatroom.name}</h2>
-              <p>{`Classroom: ${chatroom.Classrooms.name}`}</p>
               <div className="mt-4 flex gap-2">
                 <Link
                   href={`/chatrooms/${chatroom.id}`}

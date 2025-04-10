@@ -5,11 +5,20 @@ import { UserContext } from "@shared/lib/userContext/userContext";
 import { Skeleton } from "@shared/components/ui/skeleton";
 import { createClient } from "@shared/utils/supabase/client";
 import { Database, Tables } from "@shared/utils/supabase/database.types";
-// import { revalidatePath } from "next/cache";
-import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { askLLM } from "../../actions";
 import { createBrowserClient } from "@supabase/ssr";
+import config from "../../config";
+import { ChatMessageList } from "@/shared/components/ui/chat/chat-message-list";
+import { ChatInput } from "@/shared/components/ui/chat/chat-input";
+import { Button } from "@/shared/components/ui/button";
+import { SendIcon } from "lucide-react";
+import {
+  ChatBubble,
+  ChatBubbleAvatar,
+  ChatBubbleMessage,
+} from "@/shared/components/ui/chat/chat-bubble";
+import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
 interface Message extends Tables<"Messages"> {
@@ -55,6 +64,7 @@ const MessageArea = ({
   );
   const [messageBoxValue, setMessageBoxValue] = useState("");
 
+  // add database changes to messages state
   useEffect(() => {
     const supabase = createBrowserClient<Database>(
       supabaseClientUrl,
@@ -77,10 +87,10 @@ const MessageArea = ({
         if (messageRaw.member_id === null) {
           const llmMessage: Message = {
             ...messageRaw,
-            user_id: "llm",
-            full_name: "AI Assistant",
+            user_id: config.llmId,
+            full_name: config.llmName,
             // TODO: We might need an avatar for assitant
-            avatar_url: "",
+            avatar_url: config.llmAvatar,
           };
           setMessages((prevMessages) => [...prevMessages, llmMessage]);
           return;
@@ -169,11 +179,12 @@ const MessageArea = ({
     const isAskCommand = content.startsWith("/ask ");
     if (isAskCommand) {
       content = content.substring(5).trim();
-      if (!content) {
-        console.log("/ask requires content after it!");
-        setMessageBoxValue("");
-        return null;
-      }
+    }
+
+    if (!content) {
+      console.log("Message should not be empty");
+      setMessageBoxValue("");
+      return null;
     }
 
     // Insert the message
@@ -185,6 +196,7 @@ const MessageArea = ({
         is_ask: isAskCommand,
       },
     ]);
+
     if (messageError) {
       toast.error("Error sending message to chatroom", {
         description: "Please refresh and try again",
@@ -192,6 +204,8 @@ const MessageArea = ({
       setMessageBoxValue("");
       return;
     }
+
+    setMessageBoxValue("");
 
     // Handle user "/ask" command
     if (isAskCommand) {
@@ -209,79 +223,46 @@ const MessageArea = ({
       }
       setChatClient(askResult.client);
     }
-    setMessageBoxValue("");
-    //  // TODO: need to chagne this revalidate path
-    //  revalidatePath(`/chatrooms/${chatroomId}`);
   };
 
-  return (
-    <div className="flex-grow overflow-auto">
-      <div className="border-t p-4 text-black">
-        <textarea
-          id="chat"
-          rows={1}
-          className="mx-2 block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-          placeholder="Your message..."
-          value={messageBoxValue}
-          onChange={(e) => {
-            setMessageBoxValue(e.target.value);
-          }}
-        />
-        <button
-          onClick={sendMessageToChatroom}
-          className="rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-        >
-          Send
-        </button>
-      </div>
-      <div className="space-y-2 p-4">
-        {messages.length === 0 ? (
-          <p className="text-gray-500">
-            No messages yet. Start the conversation!
-          </p>
-        ) : (
-          messages.map((message, index) => {
-            const isLLM = message.user_id === "llm";
+  function cleanMessage(content: string): string {
+    // Remove any reference patterns like ##number$$
+    return content.replace(/##\d+\$\$/g, "").trim();
+  }
 
-            return (
-              <div
-                key={message.id || index}
-                className="flex items-start gap-3 rounded border p-3"
-              >
-                {isLLM ? (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200 text-sm font-medium text-blue-600">
-                    AI
-                  </div>
-                ) : message.avatar_url ? (
-                  <Image
-                    src={message.avatar_url}
-                    alt={message.full_name || "User"}
-                    referrerPolicy="no-referrer"
-                    width={25}
-                    height={25}
-                  />
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-600">
-                    {message.full_name?.charAt(0) || "?"}
-                  </div>
-                )}
-                <div className="flex-1">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-medium">
-                      {isLLM
-                        ? "AI Assistant"
-                        : message.full_name || "Unknown User"}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {new Date(message.created_at).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="mt-1">{message.content}</div>
-                </div>
-              </div>
-            );
-          })
-        )}
+  return (
+    <div className="mt-10 flex w-11/12 flex-col place-self-center rounded border p-4 text-gray-800 shadow dark:text-white">
+      <ChatMessageList>
+        {messages.map((message) => {
+          const variant =
+            message.user_id === userAndClassData.userData.id
+              ? "sent"
+              : "received";
+
+          return (
+            <ChatBubble key={message.id} variant={variant}>
+              <ChatBubbleAvatar src={message.avatar_url!} fallback="AI" />
+              <ChatBubbleMessage className="prose">
+                <ReactMarkdown>{cleanMessage(message.content)}</ReactMarkdown>
+              </ChatBubbleMessage>
+            </ChatBubble>
+          );
+        })}
+      </ChatMessageList>
+      <div className="relative mt-4 flex items-center justify-between gap-2 rounded-lg border bg-background p-1">
+        <ChatInput
+          value={messageBoxValue}
+          onChange={(e) => setMessageBoxValue(e.target.value)}
+          placeholder="Type your message..."
+          className="focus-visible:ringof min-h-10 resize-none border-0 bg-background shadow-none focus-visible:ring-0"
+        />
+        <Button
+          onClick={sendMessageToChatroom}
+          size="sm"
+          className="ml-auto mr-3"
+        >
+          Send <SendIcon />
+        </Button>
       </div>
     </div>
   );

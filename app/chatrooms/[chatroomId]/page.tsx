@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import LeaveChatroomButton from "./components/leave-chatroom-button";
 import MessageArea from "./components/message-area";
+import config from "../config";
 
 const ChatroomPage = async ({
   params,
@@ -63,9 +64,10 @@ const ChatroomPage = async ({
     (member) => member.Classroom_Members.user_id === currentUser
   );
 
-  // If user is not in this chatroom redirect to /chatrooms
+  // If user is not in this chatroom redirect to /error
+  // TODO: We might need to create an chatroom unauthroized page
   if (!currentMember) {
-    redirect("/chatrooms");
+    redirect("/error");
   }
 
   // Get messages
@@ -95,17 +97,19 @@ const ChatroomPage = async ({
     throw new Error("Error fetching messages");
   }
 
+  // serialize llm messages
   const messages = messageRaw
     ? messageRaw.map((message) => {
         const { Chatroom_Members, ...newMessage } = message;
         return {
-          // HACK: llm response has member_id set to null and there is special user_id and full_name reserved for LLM
-          user_id: Chatroom_Members?.Classroom_Members.Users.id ?? "llm",
+          // HACK: llm response has member_id set to null and special user_id and full_name reserved for LLM
+          user_id: Chatroom_Members?.Classroom_Members.Users.id ?? config.llmId,
           full_name:
             Chatroom_Members?.Classroom_Members.Users.full_name ??
-            "AI Assistant",
+            config.llmName,
           avatar_url:
-            Chatroom_Members?.Classroom_Members.Users.avatar_url ?? "",
+            Chatroom_Members?.Classroom_Members.Users.avatar_url ??
+            config.llmAvatar,
           ...newMessage,
         };
       })
@@ -120,7 +124,7 @@ const ChatroomPage = async ({
             <LeaveChatroomButton chatroomId={chatroomId} />
           )}
           <Link
-            href="/chatrooms"
+            href={`/classroom/${chatroom.classroom_id}/chatrooms`}
             className="rounded bg-indigo-600 px-4 py-2 text-white transition-colors hover:bg-indigo-700"
           >
             Back to Chatrooms
