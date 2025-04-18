@@ -35,8 +35,9 @@ import SaveClassroomDialog from "../../_components/saveClassroomDialog";
 import { Skeleton } from "@shared/components/ui/skeleton";
 import MemberList from "../../_components/memberList";
 import InviteMember from "./_components/inviteMember";
-import { Loader2 } from "lucide-react";
+import { Archive, Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/shared/components/ui/button";
 
 export default function ClassroomManagementButtons({
   userData,
@@ -113,53 +114,81 @@ export default function ClassroomManagementButtons({
 
   return (
     <div>
-      {"Look at the class info: " + classroomData.name}
-      <Link href={`upload`} passHref>
+      <h1>Managing Classroom - {classroomData.name}</h1>
+      {/* <Link href={`upload`} passHref>
         <button
           type="button"
           className="me-2 rounded-lg border border-green-700 px-5 py-2.5 text-center text-sm font-medium text-green-700 hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
         >
           Upload Materials
         </button>
-      </Link>
-      {/* ARCHIVE BUTTON */}
-      <button
-        type="button"
-        className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-        onClick={() => archiveClassroomCallback()}
-      >
-        Archive
-      </button>
-
-      {/* <button
-        type="button"
-        className="me-2 rounded-lg border border-red-700 px-5 py-2.5 text-center text-sm font-medium text-red-700 hover:bg-red-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-        onClick={() => deleteClassroomFunction(classroomIdNumber)}
-      >
-        Delete
-      </button> */}
-
-      <AlertDialog>
-        <AlertDialogTrigger>Delete</AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this
-              classroom.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={isPending}
-              onClick={() => deleteClassroomFunction()}
+      </Link> */}
+      {/* <TooltipUtil
+              trigger={
+                <Button
+                  type="button"
+                  variant={"ghost"}
+                  size={"iconLg"}
+                  asChild
+                  // className="me-2 rounded-lg border px-5 py-2.5 text-center text-sm font-medium hover:bg-green-800 hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:hover:text-white dark:focus:ring-green-900"
+                >
+                  <Link href={`upload`} passHref><Upload /></Link>
+                  
+                </Button>
+              }
+              content={"Upload Materials"}
+            /> */}
+      <div className="mb-4 mt-4 flex items-center gap-4">
+        <Button
+          variant="outline"
+          className="flex w-fit items-center gap-2 px-4 py-2"
+          asChild
+        >
+          <Link href="upload" passHref className="flex items-center gap-2">
+            <Upload /> Upload
+          </Link>
+        </Button>
+        <Button
+          variant="outline"
+          className="flex gap-2"
+          // effect={"hoverUnderline"}
+          onClick={() => archiveClassroomCallback()}
+        >
+          <Archive /> Archive
+        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="flex gap-2"
+              // effect={"hoverUnderline"}
             >
-              {isPending && <Loader2 className="animate-spin" />} Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <Trash2 /> Delete
+            </Button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete this
+                classroom.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isPending}
+                onClick={() => deleteClassroomFunction()}
+              >
+                {isPending && <Loader2 className="animate-spin" />} Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <InviteMember classroomId={classroomData.id} />
+      </div>
 
       <SaveClassroomDialog
         // isDialogOpen={isDialogOpen}
@@ -167,6 +196,7 @@ export default function ClassroomManagementButtons({
         optimisticUpdateCallback={handleChangeClassroomName}
         actionText="update"
       />
+      {/* <p>Invite Member:</p> */}
 
       {classroomData.Classroom_Members &&
       classroomData.Classroom_Members.length > 0 ? (
@@ -178,8 +208,6 @@ export default function ClassroomManagementButtons({
       ) : (
         <Skeleton></Skeleton>
       )}
-      <p>Invite Member:</p>
-      <InviteMember classroomId={classroomData.id} />
     </div>
   );
 }
