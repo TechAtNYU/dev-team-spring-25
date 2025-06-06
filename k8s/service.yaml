@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: dev-team-sp25
+  name: classroom-lm
   labels:
-    app: dev-team-sp25
+    app: classroom-lm
 spec:
   selector:
-    app: dev-team-sp25
+    app: classroom-lm
   type: ClusterIP
   internalTrafficPolicy: Cluster
   ports:

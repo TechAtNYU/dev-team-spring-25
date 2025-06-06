@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: next-config
 data:
-  .env: #|
+  .env: !!!#|
     # NEXT_PUBLIC_SUPABASE_URL=<SUBSTITUTE -> SUPABASE_URL>
     # NEXT_PUBLIC_SUPABASE_ANON_KEY=<SUBSTITUTE ->SUPABASE_ANON_KEY>
     # NEXT_PUBLIC_SITE_URL=<SUBSTITUTE -> SITE_URL>

@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dev-team-sp25
+  name: classroom-lm
   labels:
-    app: dev-team-sp25
+    app: classroom-lm
 spec:
   replicas: 1
   revisionHistoryLimit: 2
@@ -13,16 +13,16 @@ spec:
       maxUnavailable: 50%
   selector:
     matchLabels:
-      app: dev-team-sp25
+      app: classroom-lm
   template:
     metadata:
       labels:
-        app: dev-team-sp25
+        app: classroom-lm
     spec:
       restartPolicy: Always
       containers:
-        - name: dev-team-sp25
-          image: dev.techatnyu.org:5000/dev-team-sp25:1.0
+        - name: classroom-lm
+          image: !!!<insert registry url, eg localhost>:<insert registry port>/classroom-lm/classroom-lm-app:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -30,11 +30,6 @@ spec:
           envFrom:
             - secretRef:
                 name: next-secret
-            # - name: DATABASE_URI
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: postgres-creds
-            #       key: database_uri
           readinessProbe:
             httpGet:
               path: /api/health
