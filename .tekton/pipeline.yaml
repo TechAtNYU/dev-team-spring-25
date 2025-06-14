@@ -17,7 +17,7 @@ spec:
     - name: APP_NAME
       description: Name of the application
       type: string
-      default: dev-team-sp25
+      default: classroom-lm
     - name: IMAGE_NAME
       description: The name of the image to build
       type: string

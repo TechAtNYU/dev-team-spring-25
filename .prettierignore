@@ -43,3 +43,9 @@ next-env.d.ts
 
 dist
 pnpm-lock.yaml
+
+
+# ignore k8 files that are templated for keys/configs
+k8s/secret.yaml
+k8s/config.yaml
+k8s/deployment.yaml

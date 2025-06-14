@@ -22,7 +22,7 @@ spec:
           name: cd-pipeline
         params:
           - name: APP_NAME
-            value: dev-team-sp25
+            value: classroom-lm
           - name: GIT_REPO
             value: $(tt.params.git-repo-url)
           - name: IMAGE_NAME

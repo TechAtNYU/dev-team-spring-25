@@ -4,7 +4,7 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
     hostname: dev-team
-    container_name: dev-team-sp25
+    container_name: classroom-lm
     volumes:
       - ..:/app
     command: sleep infinity
